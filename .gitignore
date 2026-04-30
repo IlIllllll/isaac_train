@@ -30,7 +30,7 @@ docker/artifacts/
 log.txt
 data/generated_npz/
 data/augmented_npz/
-docs/media/sample_motions/
+docs/media/sample_motions*/
 docs/media/**/*.mp4
 *.tmp
 *.pyc
