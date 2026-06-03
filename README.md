@@ -12,6 +12,84 @@ dependency and reconstructs the required motion tensors from:
 - the public `T800` URDF already shipped in this repository, and
 - the body/joint naming used by `whole_body_tracking`.
 
+## Training Environment
+
+The current training code is maintained and validated on the following remote
+server environment as of 2026-06-03.
+
+### Server and Container
+
+- Remote host: `user@117.74.66.182`
+- Host project path:
+  `/data1/wyh/isaaclab_urkl/project/URKL_oran/1.3 开源基础代码-1. 训练代码/whole_body_tracking_engineai_release_04_13`
+- Docker container: `isaaclab_urkl_220`
+- Container image: `nvcr.io/nvidia/isaac-lab:2.2.0`
+- Container project path:
+  `/workspace/URKL_oran/1.3 开源基础代码-1. 训练代码/whole_body_tracking_engineai_release_04_13`
+- IsaacLab launcher: `/workspace/isaaclab/isaaclab.sh`
+- Isaac Python: `/workspace/isaaclab/_isaac_sim/kit/python/bin/python3`
+
+### Software Stack
+
+- OS inside container: Ubuntu 22.04.5 LTS
+- Python: 3.11.13
+- NVIDIA driver: 570.86.10
+- CUDA reported by `nvidia-smi`: 12.8
+- GPU hardware: 8 x NVIDIA A800 80GB PCIe
+
+### Running Training
+
+Run training from inside the container project root. The scripts set
+`PYTHONPATH` to `source/whole_body_tracking` and call IsaacLab through
+`/workspace/isaaclab/isaaclab.sh`.
+
+Example:
+
+```bash
+docker exec -it isaaclab_urkl_220 bash
+cd '/workspace/URKL_oran/1.3 开源基础代码-1. 训练代码/whole_body_tracking_engineai_release_04_13'
+
+CUDA_VISIBLE_DEVICES=6 /workspace/isaaclab/isaaclab.sh -p scripts/rsl_rl/train.py \
+  --task Tracking-Flat-T800-HighDyn-PhaseLocalKick3p2s-v0 \
+  --motion_file data/augmented_npz/kick_Turn_50hz_edge_hold_3p2s.npz \
+  --num_envs 4096 \
+  --max_iterations 8000 \
+  --seed 2201 \
+  --headless \
+  --logger tensorboard \
+  --experiment_name highdyn_single \
+  --run_name kick_phasefast_a_seed2201
+```
+
+The higher-level pipeline scripts used for the high-dynamic experiments are:
+
+- `scripts/run_highdyn_speedlead_pipeline.py`
+- `scripts/run_highdyn_phasefast_pipeline.py`
+
+They are designed to run serially on one GPU by setting `HIGHDYN_GPU_INDEX`,
+for example:
+
+```bash
+HIGHDYN_GPU_INDEX=6 /workspace/isaaclab/isaaclab.sh -p scripts/run_highdyn_phasefast_pipeline.py
+```
+
+### Data and Artifact Policy
+
+The Git repository tracks source code, configuration, robot assets, and small
+experiment metadata. Large or generated training artifacts are intentionally
+ignored:
+
+- `logs/`, `outputs/`, TensorBoard event files
+- checkpoint weights such as `model_*.pt`
+- recorded videos
+- generated motion files under `data/augmented_npz/`,
+  `data/highdyn_speed_npz/`, `data/speed_augmented_npz/`, and
+  `data/multimotion_npz/`
+- Python caches, macOS `._*` files, and local backup files
+
+Keep checkpoints and videos in separate reports or artifact storage instead of
+committing them to Git.
+
 ## Files
 
 - `scripts/npy_to_npz.py`: public converter from EngineAI-style `npy` to the
