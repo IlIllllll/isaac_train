@@ -35,6 +35,10 @@ def _disable_robot_terminations(env_cfg):
             setattr(env_cfg.terminations, name, None)
 
 
+def _abspath_motion_files(motion_file: str) -> str:
+    return ",".join(os.path.abspath(part.strip()) for part in motion_file.split(",") if part.strip())
+
+
 def _learn_with_code_state_fallback(runner, num_learning_iterations: int):
     """Retry training without git snapshot logging if diff encoding fails."""
     try:
@@ -134,7 +138,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # load the motion file
     registry_name = args_cli.registry_name
     if args_cli.motion_file is not None:
-        env_cfg.commands.motion.motion_file = os.path.abspath(args_cli.motion_file)
+        env_cfg.commands.motion.motion_file = _abspath_motion_files(args_cli.motion_file)
     elif registry_name is not None:
         if ":" not in registry_name:
             registry_name += ":latest"

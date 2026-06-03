@@ -4,6 +4,8 @@
 
 # Python
 .DS_Store
+._*
+**/._*
 **/*.egg-info/
 **/__pycache__/
 **/.pytest_cache/
@@ -28,10 +30,19 @@
 **/.neptune/*
 docker/artifacts/
 log.txt
-data/generated_npz/
-data/augmented_npz/
-docs/media/sample_motions*/
+data/generated_npz/*.npz
+data/npz/Punch_Swing_L_50hz.npz
+data/npz/riot_combo_50hz.npz
+data/augmented_npz/*.npz
+data/highdyn_speed_npz/*.npz
+data/speed_augmented_npz/*.npz
+data/multimotion_npz/*.npz
 docs/media/**/*.mp4
+docs/media/**/*.log
+experiments/*/logs/*
+experiments/*/configs/generated/*
+*.bak
+*.bak_*
 *.tmp
 *.pyc
 

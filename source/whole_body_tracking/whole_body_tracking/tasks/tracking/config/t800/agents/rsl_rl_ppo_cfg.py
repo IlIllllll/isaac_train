@@ -31,6 +31,22 @@ class T800FlatPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     )
 
 
+@configclass
+class T800HighDynPPORunnerCfg(T800FlatPPORunnerCfg):
+    """PPO settings for high-dynamic 3.2s single-motion training."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.num_steps_per_env = 48
+        self.max_iterations = 30000
+        self.save_interval = 500
+        self.experiment_name = "highdyn_single"
+        self.algorithm.learning_rate = 5.0e-4
+        self.algorithm.desired_kl = 0.008
+        self.algorithm.entropy_coef = 0.003
+        self.algorithm.num_mini_batches = 8
+
+
 LOW_FREQ_SCALE = 0.5
 
 

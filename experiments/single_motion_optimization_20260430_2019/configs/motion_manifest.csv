@@ -1,0 +1,9 @@
+motion_file,frames,fps,duration_s
+data/augmented_npz/Punch_Swing_L_50hz_edge_hold_3p2s.npz,161,50,3.200
+data/augmented_npz/kick_Turn_50hz_edge_hold_3p2s.npz,161,50,3.200
+data/augmented_npz/riot_combo_50hz_edge_hold_3p2s.npz,161,50,3.200
+data/augmented_npz/victory_50hz_edge_hold_3p2s.npz,432,50,8.620
+data/npz/kick_Turn_50hz.npz,67,50,1.320
+data/speed_augmented_npz/kick_Turn_50hz_edge_hold_3p2s_speed_0p75.npz,161,50,3.200
+data/speed_augmented_npz/kick_Turn_50hz_edge_hold_3p2s_speed_1p00.npz,161,50,3.200
+data/speed_augmented_npz/kick_Turn_50hz_edge_hold_3p2s_speed_1p25.npz,161,50,3.200

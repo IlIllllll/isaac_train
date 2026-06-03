@@ -29,6 +29,11 @@ def _disable_robot_terminations(env_cfg):
         if name != "time_out":
             setattr(env_cfg.terminations, name, None)
 
+
+def _abspath_motion_files(motion_file: str) -> str:
+    return ",".join(os.path.abspath(part.strip()) for part in motion_file.split(",") if part.strip())
+
+
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
@@ -45,6 +50,7 @@ parser.add_argument(
     default=False,
     help="Disable all robot terminations except time_out.",
 )
+parser.add_argument("--skip_mnn", action="store_true", default=False, help="Skip ONNX-to-MNN conversion after export.")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -64,7 +70,6 @@ simulation_app = app_launcher.app
 """Rest everything follows."""
 
 import gymnasium as gym
-import importlib.util
 import os
 import pathlib
 import torch
@@ -124,7 +129,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
         if args_cli.motion_file is not None:
             print(f"[INFO]: Using motion file from CLI: {args_cli.motion_file}")
-            env_cfg.commands.motion.motion_file = args_cli.motion_file
+            env_cfg.commands.motion.motion_file = _abspath_motion_files(args_cli.motion_file)
 
         art = next((a for a in wandb_run.used_artifacts() if a.type == "motions"), None)
         if art is None:
@@ -139,7 +144,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
         if args_cli.motion_file is not None:
             print(f"[INFO]: Using motion file from CLI: {args_cli.motion_file}")
-            env_cfg.commands.motion.motion_file = os.path.abspath(args_cli.motion_file)
+            env_cfg.commands.motion.motion_file = _abspath_motion_files(args_cli.motion_file)
 
     if args_cli.no_terminations:
         _disable_robot_terminations(env_cfg)
@@ -189,7 +194,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     onnx_file = os.path.join(export_model_dir, "policy.onnx")
     mnn_file = os.path.join(export_model_dir, "policy.mnn")
 
-    if os.path.exists(onnx_file) and importlib.util.find_spec("MNN") is not None:
+    if os.path.exists(onnx_file) and not args_cli.skip_mnn:
         subprocess.run(
             [
                 "python",
@@ -208,7 +213,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         )
         print(f"Successfully converted to MNN: {mnn_file}")
     elif os.path.exists(onnx_file):
-        print("[WARN] MNN is not installed; skipping MNN conversion.")
+        print(f"[INFO] Skipping MNN conversion, ONNX exported at: {onnx_file}")
     else:
         print(f"ONNX file not found: {onnx_file}")
 

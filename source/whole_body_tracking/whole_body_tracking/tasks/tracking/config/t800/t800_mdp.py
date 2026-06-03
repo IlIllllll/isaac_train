@@ -103,7 +103,7 @@ class ResidualRefJointPositionAction(JointAction):
 
     def apply_actions(self):
         command: MotionCommand = self._env.command_manager.get_term(self._command_name)
-        target_joint_pos = command.joint_pos + self.processed_actions
+        target_joint_pos = command.joint_pos_at_offset(self.cfg.ref_advance_steps) + self.processed_actions
         self._asset.set_joint_position_target(target_joint_pos, joint_ids=self._joint_ids)
 
 
@@ -111,3 +111,4 @@ class ResidualRefJointPositionAction(JointAction):
 class ResidualRefJointPositionActionCfg(JointActionCfg):
     class_type: type = ResidualRefJointPositionAction
     command_name: str = "motion"
+    ref_advance_steps: int = 0
